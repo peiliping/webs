@@ -40,7 +40,6 @@
         };
         const intervalName = getUrlParam('interval', '5m');
         const interval = INTERVALS[intervalName];
-
         const dataContext = {
             symbol: getUrlParam('symbol', 'BTCUSDT').toUpperCase(),
             prices: [],
@@ -63,7 +62,7 @@
                 this.startTime = this.endTime - 86400000 * n;
             }
         };
-        dataContext.buildRange(interval.days);
+        dataContext.buildRange(parseInt(getUrlParam('days', interval.days)));
 
         //chart渲染
         function createChart(){
