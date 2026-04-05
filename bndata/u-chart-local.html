@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh" content="60"> 
+    <!--  <meta http-equiv="refresh" content="60">  -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Binance Futures Data Chart</title>
     <style>
@@ -244,7 +244,7 @@
             });
         }
         function getKlines(){
-            return fetchPaginatedData('/api/kline', 
+            return fetchPaginatedData('/api/kline.json', 
                 item => {
                     const t = item.open_time_sec * 1000;
                     dataContext.prices.push([t, 
