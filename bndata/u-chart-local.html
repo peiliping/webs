@@ -218,7 +218,7 @@
         function fetchPaginatedData(page, dataMapper) {
             return new Promise((resolve, reject) => {
                 const fetch = (startTime) => {
-                    const endTime = Math.min(startTime + dataContext.intervalTS * 999,
+                    const endTime = Math.min(startTime + dataContext.intervalTS * 8192,
                                             dataContext.endTime);
                     $.getJSON(buildURL(page, startTime, endTime))
                         .done(data => {
@@ -246,7 +246,7 @@
         function getKlines(){
             return fetchPaginatedData('/api/kline.json', 
                 item => {
-                    const t = item.open_time_sec * 1000;
+                    const t = item.time_sec * 1000;
                     dataContext.prices.push([t, 
                         parseFloat(item.open), 
                         parseFloat(item.high), 
