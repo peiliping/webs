@@ -253,8 +253,12 @@
                         parseFloat(item.low), 
                         parseFloat(item.close)]);
                     dataContext.volumes.push([t, parseFloat(item.volume)]);
-                    dataContext.opensU.push([t, item.open_interest]);
-                    dataContext.longshorts.push([t, item.long_short_delta]);
+                    if("open_interest" in item){
+                      dataContext.opensU.push([t, item.open_interest]);    
+                    }
+                    if("long_short_delta" in item){
+                      dataContext.longshorts.push([t, item.long_short_delta]);
+                    }
                 });
         }
 
