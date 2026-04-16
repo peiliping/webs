@@ -220,7 +220,7 @@
                                             dataContext.endTime);
                     $.getJSON(buildURL(page, startTime, endTime))
                         .done(data => {
-                            data.data.forEach(dataMapper);
+                            data.forEach(dataMapper);
                             if (endTime + dataContext.intervalTS <= dataContext.endTime) {
                                 fetch(endTime + dataContext.intervalTS);
                             } else {
