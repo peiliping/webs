@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!--  <meta http-equiv="refresh" content="60">  -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Binance Futures Data Chart</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%; 
+            overflow: hidden; 
+        }
+        #container {
+            width: 100%; 
+            height: 100%;
+        }
+    </style>
+    <script src="jslib/jquery-3.7.0.js"></script>
+    <script src="jslib/highstock-12.4.0.js"></script>
+    <script src="jslib/highcharts-more-12.4.0.js"></script>
+    <script src="jslib/accessibility-12.4.0.js"></script>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+        function getUrlParam(key, defaultValue) {
+            const value = new URLSearchParams(window.location.search).get(key);
+            return (value || defaultValue);
+        }
+        const SYMBOLS = { 'BTCUSDT': 1 }
+        const INTERVALS = {
+            '5min' :  {ts: 300000,   period: 0, linearNum: 288, days: 2},
+            '15min':  {ts: 900000,   period: 1, linearNum: 288, days: 5},
+            '1h':     {ts: 3600000,  period: 2, linearNum: 168, days: 8},
+            '4h':     {ts: 14400000, period: 3, linearNum: 168, days: 29}
+        };
+        const intervalName = getUrlParam('interval', '5min');
+        const interval = INTERVALS[intervalName];
+        const dataContext = {
+            symbol: getUrlParam('symbol', 'BTCUSDT').toUpperCase(),
+            prices: [],
+            pricesLNR: [],
+            pricesPrecision: parseInt(getUrlParam('pricesPrecision', 2)),
+            volumes: [],
+            opensU: [],
+            opensULNR: [],
+            opensUPrecision: parseInt(getUrlParam('opensUPrecision', 2)),
+            ratios: [],
+            longshorts: [],
+            interval: intervalName,
+            intervalTS: interval.ts,
+            initPeriod: interval.period,
+            linearNum: interval.linearNum,
+            startTime: null,
+            endTime: null,
+            buildRange: function(n){
+                this.endTime = parseInt(new Date().getTime() / this.intervalTS) * this.intervalTS
+                this.startTime = this.endTime - 86400000 * n;
+            }
+        };
+        dataContext.buildRange(parseInt(getUrlParam('days', interval.days)));
+
+        function createChart(){
+            console.log(dataContext);
+            document.title = `
+                ${dataContext.longshorts[dataContext.longshorts.length - 1][1]} | 
+                ${dataContext.opensU[dataContext.opensU.length - 1][1]} | 
+                ${dataContext.ratios[dataContext.ratios.length - 1][1]}
+            `;
+            Highcharts.stockChart('container', {
+                time: {useUTC: false},
+                legend: {enabled: true},
+                title: {text: `${dataContext.symbol} - ${dataContext.interval}`},
+                plotOptions: {series: {dataGrouping: {enabled: false}}},
+                rangeSelector: {
+                    buttons: [
+                        {type: 'day',  count: 1, text: '1d'},
+                        {type: 'day',  count: 3, text: '3d'},
+                        {type: 'week', count: 1, text: '1w'},
+                        {type: 'week', count: 4, text: '4w'}
+                    ],
+                    selected: dataContext.initPeriod
+                },
+                yAxis: [
+                    {                     
+                        title: {text: '价格',style: {color: Highcharts.getOptions().colors[1]}},
+                        labels: {style: {color: Highcharts.getOptions().colors[1]}},
+                        opposite: false,
+                        height: '85%'
+                    },{
+                        title: {text: '多空比',style: {color: Highcharts.getOptions().colors[1]}},
+                        labels: {style: {color: Highcharts.getOptions().colors[1]}},
+                        opposite: true,
+                        height: '85%'
+                    },{
+                        labels: {enabled: false},
+                        gridLineWidth: 0,
+                        height: '85%',
+                        visible: false
+                    },{
+                        labels: {enabled: false},
+                        gridLineWidth: 0,
+                        height: '85%',
+                        visible: false
+                    },{
+                        labels: {enabled: false},
+                        gridLineWidth: 0,
+                        height: '25%',
+                        top: '75%'
+                    }
+                ],
+                series: [
+                    {
+                        name: 'Prices',
+                        type: 'candlestick',
+                        yAxis: 0,
+                        data: dataContext.prices,
+                        color: 'green',
+                        lineColor: 'green',
+                        upColor: 'red',
+                        upLineColor: 'red'
+                    },{
+                        name: 'PricesLNR',
+                        type: 'areasplinerange',
+                        yAxis: 0,
+                        data: dataContext.pricesLNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false,
+                        fillOpacity: 0.1
+                    },{
+                        name: 'LongShorts',
+                        type: 'spline',
+                        yAxis: 1,
+                        data: dataContext.longshorts,
+                        color: Highcharts.getOptions().colors[2]
+                    },{
+                        name: 'Opens(U)',
+                        type: 'spline',
+                        yAxis: 2,
+                        data: dataContext.opensU,
+                        dashStyle: 'Dash',
+                        color: Highcharts.getOptions().colors[8]
+                    },{
+                        name: 'Opens(U)LNR',
+                        type: 'areasplinerange',
+                        yAxis: 2,
+                        data: dataContext.opensULNR,
+                        color: Highcharts.getOptions().colors[0],
+                        lineWidth: 0,
+                        visible: false,
+                        fillOpacity: 0.1
+                    },{
+                        name: 'Ratios',
+                        type: 'spline',
+                        yAxis: 3,
+                        data: dataContext.ratios,
+                        color: Highcharts.getOptions().colors[4],
+                        visible: false
+                    },{
+                        name: 'Volumes',
+                        type: 'column',
+                        yAxis: 4,
+                        data: dataContext.volumes,
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                ]
+            });
+        }
+
+        function getAvgPrice(item){return (item[1] + item[2] + item[3] + item[4]) / 4}
+        function toPrecision(value, n) {
+            const precision = Math.pow(10, n);
+            return Math.round(value * precision) / precision;
+        }
+        function linear(source, getValFunc, precisionN){
+            const length = source.length;
+            let sumx = 0, sumy = 0, sumxx = 0, sumxy = 0;
+            for (let i = 1; i <= length; i++){
+                const y = getValFunc(source[i-1]);
+                sumx += i;
+                sumy += y;
+                sumxx += (i * i);
+                sumxy += (i * y);
+            }
+            const slope = (length * sumxy - sumx * sumy) / (length * sumxx - sumx * sumx);
+            const intercept = sumy / length - slope * sumx / length + slope;
+            let stdDevAcc = 0
+            for (let i = 1; i <= length; i++){
+                const y = getValFunc(source[i-1]);
+                stdDevAcc += ((i * slope + intercept - y) * (i * slope + intercept - y));
+            }
+            const stdDev = Math.sqrt(stdDevAcc / (length - 1));
+            const finalPrediction = length * slope + intercept;
+            const upper = toPrecision(finalPrediction + 2 * stdDev, precisionN);
+            const lower = toPrecision(finalPrediction - 2 * stdDev, precisionN);
+            return [source[length - 1][0], upper, lower];
+        }
+        function calLinearLines(source, target, getValFunc, precisionN){
+            for(let i = dataContext.linearNum - 1; i < source.length; i++){
+                const subArray = source.slice(i + 1 - dataContext.linearNum, i + 1);
+                target.push(linear(subArray, getValFunc, precisionN));
+            }
+        }
+     
+        function buildURL(page, startTime, endTime) {
+            const url = new URL('http://192.168.31.100:3000' + page);
+            url.searchParams.set('symbol_id', SYMBOLS[dataContext.symbol]);
+            url.searchParams.set('kline_interval', dataContext.interval);
+            url.searchParams.set('start_time_ts', startTime / 1000);
+            url.searchParams.set('end_time_ts', endTime / 1000);
+            return url.toString();
+        }
+        function fetchPaginatedData(page, dataMapper) {
+            return new Promise((resolve, reject) => {
+                const fetch = (startTime) => {
+                    const endTime = Math.min(startTime + dataContext.intervalTS * 8192,
+                                            dataContext.endTime);
+                    $.getJSON(buildURL(page, startTime, endTime))
+                        .done(data => {
+                            data.data.forEach(dataMapper);
+                            if (endTime + dataContext.intervalTS <= dataContext.endTime) {
+                                fetch(endTime + dataContext.intervalTS);
+                            } else {
+                                resolve();
+                            }
+                        });
+                };
+                fetch(dataContext.startTime);
+            });
+        }
+
+        function getRatios(){
+            const priceMap = new Map(dataContext.prices.map(item => [item[0], getAvgPrice(item)]));
+            dataContext.opensU.forEach(item => {
+                if(priceMap.has(item[0])){
+                    const ratio = item[1] * 1000 / priceMap.get(item[0]);
+                    dataContext.ratios.push([item[0], toPrecision(ratio, 3)]);
+                }
+            });
+        }
+        function getKlines(){
+            return fetchPaginatedData('/rpc/get_klines', 
+                item => {
+                    const t = item.time_sec * 1000;
+                    dataContext.prices.push([t, 
+                        parseFloat(item.open), 
+                        parseFloat(item.high), 
+                        parseFloat(item.low), 
+                        parseFloat(item.close)]);
+                    dataContext.volumes.push([t, parseFloat(item.volume)]);
+                    if("open_interest" in item){
+                      dataContext.opensU.push([t, item.open_interest]);    
+                    }
+                    if("long_short_delta" in item){
+                      dataContext.longshorts.push([t, item.long_short_delta]);
+                    }
+                });
+        }
+
+        Promise.all([getKlines()]).then(() => {
+                calLinearLines(dataContext.prices, dataContext.pricesLNR,
+                                getAvgPrice, dataContext.pricesPrecision);
+                calLinearLines(dataContext.opensU, dataContext.opensULNR,
+                                item => item[1], dataContext.opensUPrecision);
+                getRatios();
+                createChart();
+            });
+    </script>
+</body>
+</html>
