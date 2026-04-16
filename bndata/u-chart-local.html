@@ -29,7 +29,7 @@
             const value = new URLSearchParams(window.location.search).get(key);
             return (value || defaultValue);
         }
-
+        const SYMBOLS = { 'BTCUSDT': 1 }
         const INTERVALS = {
             '5min' :  {ts: 300000,   period: 0, linearNum: 288, days: 2},
             '15min':  {ts: 900000,   period: 1, linearNum: 288, days: 5},
@@ -206,13 +206,11 @@
         }
      
         function buildURL(page, startTime, endTime) {
-            const url = new URL('http://192.168.31.100:10000' + page);
-            const st = new Date(startTime + 28800000).toISOString().slice(0, 19);
-            const et = new Date(endTime   + 28800000).toISOString().slice(0, 19);
-            url.searchParams.set('symbol', 'BTCUSDT');
-            url.searchParams.set('duration', dataContext.interval);
-            url.searchParams.set('starttime', st);
-            url.searchParams.set('endtime', et);
+            const url = new URL('http://192.168.31.100:3000' + page);
+            url.searchParams.set('symbol_id', SYMBOLS[dataContext.symbol]);
+            url.searchParams.set('kline_interval', dataContext.interval);
+            url.searchParams.set('start_time_ts', startTime / 1000);
+            url.searchParams.set('end_time_ts', endTime / 1000);
             return url.toString();
         }
         function fetchPaginatedData(page, dataMapper) {
@@ -222,7 +220,7 @@
                                             dataContext.endTime);
                     $.getJSON(buildURL(page, startTime, endTime))
                         .done(data => {
-                            data.data.forEach(dataMapper);
+                            data.forEach(dataMapper);
                             if (endTime + dataContext.intervalTS <= dataContext.endTime) {
                                 fetch(endTime + dataContext.intervalTS);
                             } else {
@@ -244,7 +242,7 @@
             });
         }
         function getKlines(){
-            return fetchPaginatedData('/api/kline.json', 
+            return fetchPaginatedData('/rpc/get_klines', 
                 item => {
                     const t = item.time_sec * 1000;
                     dataContext.prices.push([t, 
