@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <!--  <meta http-equiv="refresh" content="60">  -->
+    <!--  <meta http-equiv="refresh" content="300">  -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Binance Futures Data Chart</title>
     <style>
@@ -205,20 +205,19 @@
             }
         }
      
-        function buildURL(page, startTime, endTime) {
-            const url = new URL('http://192.168.31.100:3000' + page);
+        function buildURL(startTime, endTime) {
+            const url = new URL('http://192.168.31.100:3000/rpc/get_klines');
             url.searchParams.set('symbol_id', SYMBOLS[dataContext.symbol]);
             url.searchParams.set('kline_interval', dataContext.interval);
             url.searchParams.set('start_time_ts', startTime / 1000);
             url.searchParams.set('end_time_ts', endTime / 1000);
             return url.toString();
         }
-        function fetchPaginatedData(page, dataMapper) {
+        function fetchPaginatedData(dataMapper) {
             return new Promise((resolve, reject) => {
                 const fetch = (startTime) => {
-                    const endTime = Math.min(startTime + dataContext.intervalTS * 8192,
-                                            dataContext.endTime);
-                    $.getJSON(buildURL(page, startTime, endTime))
+                    const endTime = Math.min(startTime + dataContext.intervalTS * 8192,dataContext.endTime);
+                    $.getJSON(buildURL(startTime, endTime))
                         .done(data => {
                             data.forEach(dataMapper);
                             if (endTime + dataContext.intervalTS <= dataContext.endTime) {
@@ -232,18 +231,8 @@
             });
         }
 
-        function getRatios(){
-            const priceMap = new Map(dataContext.prices.map(item => [item[0], getAvgPrice(item)]));
-            dataContext.opensU.forEach(item => {
-                if(priceMap.has(item[0])){
-                    const ratio = item[1] * 1000 / priceMap.get(item[0]);
-                    dataContext.ratios.push([item[0], toPrecision(ratio, 3)]);
-                }
-            });
-        }
         function getKlines(){
-            return fetchPaginatedData('/rpc/get_klines', 
-                item => {
+            return fetchPaginatedData(item => {
                     const t = item.time_sec * 1000;
                     dataContext.prices.push([t, 
                         parseFloat(item.open), 
@@ -252,7 +241,9 @@
                         parseFloat(item.close)]);
                     dataContext.volumes.push([t, parseFloat(item.volume)]);
                     if("open_interest" in item){
-                      dataContext.opensU.push([t, item.open_interest]);    
+                      dataContext.opensU.push([t, item.open_interest]);
+                      const ratio = item.open_interest * 1000 / item.close;
+                      dataContext.ratios.push([t, toPrecision(ratio, 3)]);
                     }
                     if("long_short_delta" in item){
                       dataContext.longshorts.push([t, item.long_short_delta]);
@@ -265,7 +256,6 @@
                                 getAvgPrice, dataContext.pricesPrecision);
                 calLinearLines(dataContext.opensU, dataContext.opensULNR,
                                 item => item[1], dataContext.opensUPrecision);
-                getRatios();
                 createChart();
             });
     </script>
