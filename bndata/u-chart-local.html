@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <!--  <meta http-equiv="refresh" content="300">  -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Binance Futures Data Chart</title>
     <style>
@@ -28,6 +27,10 @@
         function getUrlParam(key, defaultValue) {
             const value = new URLSearchParams(window.location.search).get(key);
             return (value || defaultValue);
+        }
+        const refreshInterval = parseInt(getUrlParam('refresh', 0));
+        if (refreshInterval > 0) {
+            setTimeout(() => { window.location.reload(); }, refreshInterval * 1000);
         }
         const SYMBOLS = { 'BTCUSDT': 1, 'ETHUSDT': 2 }
         const INTERVALS = {
