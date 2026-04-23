@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh" content="60"> 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Binance Futures Data Chart</title>
     <style>
@@ -30,7 +29,10 @@
             const value = new URLSearchParams(window.location.search).get(key);
             return (value || defaultValue);
         }
-
+        const refreshInterval = parseInt(getUrlParam('refresh', 60));
+        if (refreshInterval > 0) {
+            setTimeout(() => { window.location.reload(); }, refreshInterval * 1000);
+        }
         const INTERVALS = {
             '5m':  {ts: 300000, period: 0, linearNum: 288, days: 3},
             '15m': {ts: 900000, period: 1, linearNum: 288, days: 5},
