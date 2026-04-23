@@ -15,7 +15,7 @@
         .btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background-color: #0056b3; transform: translateY(-1px); }
         .preview-url { margin-top: 1.5rem; font-size: 0.75rem; color: #999; word-break: break-all; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px dashed #ddd; }
-        .hint { font-size: 0.7rem; color: #ff9800; margin-top: 4px; }
+        .hint { font-size: 0.7rem; color: #999; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -24,11 +24,20 @@
     <h2>📈 币安图表生成器</h2>
     
     <div class="form-group">
-        <label>交易对</label>
-        <select id="symbol">
-            <option value="BTCUSDT">BTCUSDT</option>
-            <option value="ETHUSDT">ETHUSDT</option>
-        </select>
+        <label>交易对 (可选择或输入)</label>
+        <input type="text" id="symbol" list="symbol-list" placeholder="例如: BTCUSDT" value="BTCUSDT">
+        <datalist id="symbol-list">
+            <option value="BTCUSDT">
+            <option value="ETHUSDT">
+            <option value="SOLUSDT">
+            <option value="XRPUSDT">
+            <option value="ZECUSDT">
+            <option value="BNBUSDT">
+            <option value="DOGEUSDT">
+            <option value="AAVEUSDT">
+            <option value="LINKUSDT">
+        </datalist>
+        <div class="hint">支持手动输入任意交易对</div>
     </div>
 
     <div class="form-group">
@@ -63,8 +72,8 @@
 <script>
     // 定义联动规则
     const defaultDays = {
-        "5min": 3,
-        "15min": 5,
+        "5m": 3,
+        "15m": 5,
         "1h": 8,
         "4h": 29
     };
@@ -80,7 +89,8 @@
 
     function buildUrl() {
         const baseUrl = "u-chart.html";
-        const symbol = document.getElementById('symbol').value;
+        // 自动转换为大写，防止币安 API 报错
+        const symbol = document.getElementById('symbol').value.toUpperCase().trim();
         const interval = document.getElementById('interval').value;
         const days = document.getElementById('days').value;
         const refresh = document.getElementById('refresh').value;
