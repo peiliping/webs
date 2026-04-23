@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图表导航</title>
+    <style>
+        body { font-family: 'PingFang SC', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { margin-top: 0; color: #1a1a1a; text-align: center; font-size: 1.25rem; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        select:focus, input:focus { border-color: #007bff; }
+        .btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background-color: #0056b3; transform: translateY(-1px); }
+        .preview-url { margin-top: 1.5rem; font-size: 0.75rem; color: #999; word-break: break-all; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px dashed #ddd; }
+        .hint { font-size: 0.7rem; color: #ff9800; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📈 币安图表生成器</h2>
+    
+    <div class="form-group">
+        <label>交易对</label>
+        <select id="symbol">
+            <option value="BTCUSDT">BTCUSDT</option>
+            <option value="ETHUSDT">ETHUSDT</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>时间间隔</label>
+        <select id="interval" onchange="handleIntervalChange()">
+            <option value="5min">5 min</option>
+            <option value="15min">15 min</option>
+            <option value="1h">1 h</option>
+            <option value="4h">4 h</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>展示天数</label>
+        <input type="number" id="days" value="3">
+    </div>
+
+    <div class="form-group">
+        <label>刷新间隔</label>
+        <select id="refresh">
+            <option value="0">0</option>
+            <option value="60" selected>1 min</option>
+            <option value="300">5 min</option>
+        </select>
+    </div>
+
+    <button class="btn" onclick="goToUrl()">打开图表页面</button>
+    
+    <div class="preview-url" id="preview"></div>
+</div>
+
+<script>
+    // 定义联动规则
+    const defaultDays = {
+        "5min": 3,
+        "15min": 5,
+        "1h": 8,
+        "4h": 29
+    };
+
+    // 当 Interval 改变时，自动更新 Days
+    function handleIntervalChange() {
+        const interval = document.getElementById('interval').value;
+        if (defaultDays[interval]) {
+            document.getElementById('days').value = defaultDays[interval];
+        }
+        updatePreview();
+    }
+
+    function buildUrl() {
+        const baseUrl = "u-chart-local.html";
+        const symbol = document.getElementById('symbol').value;
+        const interval = document.getElementById('interval').value;
+        const days = document.getElementById('days').value;
+        const refresh = document.getElementById('refresh').value;
+        
+        return `${baseUrl}?symbol=${symbol}&interval=${interval}&days=${days}&refresh=${refresh}`;
+    }
+
+    function updatePreview() {
+        document.getElementById('preview').innerText = buildUrl();
+    }
+
+    function goToUrl() {
+        window.open(buildUrl(), '_blank');
+    }
+
+    // 绑定事件
+    document.querySelectorAll('select, input').forEach(el => {
+        el.addEventListener('change', updatePreview);
+        el.addEventListener('input', updatePreview);
+    });
+
+    // 初始化运行
+    updatePreview();
+</script>
+
+</body>
+</html>
