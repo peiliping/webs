@@ -26,14 +26,13 @@
     
     <div class="form-group">
         <label>交易对 (可选择或输入)</label>
-        <input type="text" id="symbol" list="symbol-list" placeholder="例如: BTCUSDT" value="BTCUSDT">
+        <input type="text" id="symbol" list="symbol-list" value="BTCUSDT">
         <datalist id="symbol-list">
             <option value="BTCUSDT">
             <option value="ETHUSDT">
             <option value="SOLUSDT">
             <option value="XRPUSDT">
             <option value="ZECUSDT">
-            <option value="BNBUSDT">
             <option value="DOGEUSDT">
             <option value="AAVEUSDT">
             <option value="LINKUSDT">
@@ -70,7 +69,6 @@
 </div>
 
 <script>
-    // 定义联动规则
     const defaultDays = {
         "5m": 3,
         "15m": 5,
@@ -78,7 +76,6 @@
         "4h": 29
     };
 
-    // 当 Interval 改变时，自动更新 Days
     function handleIntervalChange() {
         const interval = document.getElementById('interval').value;
         if (defaultDays[interval]) {
@@ -89,7 +86,6 @@
 
     function buildUrl() {
         const baseUrl = "u-chart.html";
-        // 自动转换为大写，防止币安 API 报错
         const symbol = document.getElementById('symbol').value.toUpperCase().trim();
         const interval = document.getElementById('interval').value;
         const days = document.getElementById('days').value;
@@ -106,7 +102,6 @@
         window.open(buildUrl(), '_blank');
     }
 
-    // 绑定事件
     document.querySelectorAll('select, input').forEach(el => {
         el.addEventListener('change', updatePreview);
         el.addEventListener('input', updatePreview);
