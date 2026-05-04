@@ -10,13 +10,18 @@
         h2 { margin-top: 0; color: #1a1a1a; text-align: center; font-size: 1.25rem; margin-bottom: 1.5rem; }
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 0.9rem; }
-        select, input { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border-color 0.2s; }
         input#symbol::-webkit-calendar-picker-indicator { display: none !important; }
         select:focus, input:focus { border-color: #007bff; }
+        
+        /* 勾选框样式 */
+        .checkbox-group { display: flex; align-items: center; margin-bottom: 1.2rem; cursor: pointer; }
+        .checkbox-group input { width: auto; margin-right: 10px; cursor: pointer; }
+        .checkbox-group label { margin-bottom: 0; cursor: pointer; display: inline; }
+
         .btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background-color: #0056b3; transform: translateY(-1px); }
-        .preview-url { margin-top: 1.5rem; font-size: 0.75rem; color: #999; word-break: break-all; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px dashed #ddd; }
-        .hint { font-size: 0.7rem; color: #999; margin-top: 4px; }
+        .preview-url { margin-top: 1.5rem; font-size: 0.75rem; color: #999; word-break: break-all; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px dashed #ddd; min-height: 20px; }
     </style>
 </head>
 <body>
@@ -32,10 +37,9 @@
             <option value="ETHUSDT">
             <option value="SOLUSDT">
             <option value="XRPUSDT">
-            <option value="ZECUSDT">
-            <option value="DOGEUSDT">
             <option value="AAVEUSDT">
             <option value="LINKUSDT">
+            <option value="TMP">
         </datalist>
     </div>
 
@@ -63,6 +67,11 @@
         </select>
     </div>
 
+    <div class="checkbox-group">
+        <input type="checkbox" id="useLocal" onchange="updatePreview()">
+        <label for="useLocal">使用本地模式 (u-chart-local.html)</label>
+    </div>
+
     <button class="btn" onclick="goToUrl()">打开图表页面</button>
     
     <div class="preview-url" id="preview"></div>
@@ -85,7 +94,8 @@
     }
 
     function buildUrl() {
-        const baseUrl = "u-chart.html";
+        const isLocal = document.getElementById('useLocal').checked;
+        const baseUrl = isLocal ? "u-chart-local.html" : "u-chart.html";
         const symbol = document.getElementById('symbol').value.toUpperCase().trim();
         const interval = document.getElementById('interval').value;
         const days = document.getElementById('days').value;
