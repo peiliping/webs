@@ -32,15 +32,13 @@
         if (refreshInterval > 0) {
             setTimeout(() => { window.location.reload(); }, refreshInterval * 1000);
         }
-        const SYMBOLS = { 'BTCUSDT': 1, 'ETHUSDT': 2, 'USDCUSDT': 3 }
+        const SYMBOLS = { 'BTCUSDT': 1, 'ETHUSDT': 2}
         const INTERVALS = {
-            '5min' :  {ts: 300000,   period: 0, linearNum: 288, days: 3},
-            '15min':  {ts: 900000,   period: 1, linearNum: 288, days: 7},
-            '1h':     {ts: 3600000,  period: 2, linearNum: 168, days: 10},
-            '4h':     {ts: 14400000, period: 3, linearNum: 168, days: 30}
+            '5m' : {name: '5min',  ts: 300000,   period: 0, linearNum: 288, days: 3},
+            '15m': {name: '15min', ts: 900000,   period: 1, linearNum: 288, days: 7},
+            '1h':  {name: '1h',    ts: 3600000,  period: 2, linearNum: 168, days: 10},
+            '4h':  {name: '4h',    ts: 14400000, period: 3, linearNum: 168, days: 30}
         };
-        const intervalName = getUrlParam('interval', '5min');
-        const interval = INTERVALS[intervalName];
         const dataContext = {
             symbol: getUrlParam('symbol', 'BTCUSDT').toUpperCase(),
             prices: [],
@@ -52,18 +50,15 @@
             opensUPrecision: parseInt(getUrlParam('opensUPrecision', 2)),
             ratios: [],
             longshorts: [],
-            interval: intervalName,
-            intervalTS: interval.ts,
-            initPeriod: interval.period,
-            linearNum: interval.linearNum,
+            interval: INTERVALS[getUrlParam('interval', '5m')],
             startTime: null,
             endTime: null,
             buildRange: function(n){
-                this.endTime = parseInt(new Date().getTime() / this.intervalTS) * this.intervalTS
+                this.endTime = parseInt(new Date().getTime() / this.interval.ts) * this.interval.ts
                 this.startTime = this.endTime - 86400000 * n;
             }
         };
-        dataContext.buildRange(parseInt(getUrlParam('days', interval.days)));
+        dataContext.buildRange(parseInt(getUrlParam('days', dataContext.interval.days)));
 
         function createChart(){
             console.log(dataContext);
@@ -75,7 +70,7 @@
             Highcharts.stockChart('container', {
                 time: {useUTC: false},
                 legend: {enabled: true},
-                title: {text: `${dataContext.symbol} - ${dataContext.interval}`},
+                title: {text: `${dataContext.symbol} - ${dataContext.interval.name}`},
                 plotOptions: {series: {dataGrouping: {enabled: false}}},
                 rangeSelector: {
                     buttons: [
@@ -211,7 +206,7 @@
         function buildURL(startTime, endTime) {
             const url = new URL('http://192.168.31.100:3000/rpc/get_klines');
             url.searchParams.set('symbol_id', SYMBOLS[dataContext.symbol]);
-            url.searchParams.set('kline_interval', dataContext.interval);
+            url.searchParams.set('kline_interval', dataContext.interval.name);
             url.searchParams.set('start_time_ts', startTime / 1000);
             url.searchParams.set('end_time_ts', endTime / 1000);
             return url.toString();
@@ -219,12 +214,12 @@
         function fetchPaginatedData(dataMapper) {
             return new Promise((resolve, reject) => {
                 const fetch = (startTime) => {
-                    const endTime = Math.min(startTime + dataContext.intervalTS * 8192,dataContext.endTime);
+                    const endTime = Math.min(startTime + dataContext.interval.ts * 8192,dataContext.endTime);
                     $.getJSON(buildURL(startTime, endTime))
                         .done(data => {
                             data.forEach(dataMapper);
-                            if (endTime + dataContext.intervalTS <= dataContext.endTime) {
-                                fetch(endTime + dataContext.intervalTS);
+                            if (endTime + dataContext.interval.ts <= dataContext.endTime) {
+                                fetch(endTime + dataContext.interval.ts);
                             } else {
                                 resolve();
                             }

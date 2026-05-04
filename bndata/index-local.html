@@ -35,8 +35,8 @@
     <div class="form-group">
         <label>时间间隔</label>
         <select id="interval" onchange="handleIntervalChange()">
-            <option value="5min">5 min</option>
-            <option value="15min">15 min</option>
+            <option value="5m">5 min</option>
+            <option value="15m">15 min</option>
             <option value="1h">1 h</option>
             <option value="4h">4 h</option>
         </select>
@@ -63,8 +63,8 @@
 
 <script>
     const defaultDays = {
-        "5min": 3,
-        "15min": 5,
+        "5m": 3,
+        "15m": 5,
         "1h": 8,
         "4h": 29
     };
@@ -100,7 +100,6 @@
         el.addEventListener('input', updatePreview);
     });
 
-    // 初始化运行
     updatePreview();
 </script>
 
