@@ -11,11 +11,12 @@
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 0.9rem; }
         select, input { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        input#symbol::-webkit-calendar-picker-indicator { display: none !important; }
         select:focus, input:focus { border-color: #007bff; }
         .btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn:hover { background-color: #0056b3; transform: translateY(-1px); }
         .preview-url { margin-top: 1.5rem; font-size: 0.75rem; color: #999; word-break: break-all; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px dashed #ddd; }
-        .hint { font-size: 0.7rem; color: #ff9800; margin-top: 4px; }
+        .hint { font-size: 0.7rem; color: #999; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -61,7 +62,6 @@
 </div>
 
 <script>
-    // 定义联动规则
     const defaultDays = {
         "5min": 3,
         "15min": 5,
@@ -69,7 +69,6 @@
         "4h": 29
     };
 
-    // 当 Interval 改变时，自动更新 Days
     function handleIntervalChange() {
         const interval = document.getElementById('interval').value;
         if (defaultDays[interval]) {
@@ -80,7 +79,7 @@
 
     function buildUrl() {
         const baseUrl = "u-chart-local.html";
-        const symbol = document.getElementById('symbol').value;
+        const symbol = document.getElementById('symbol').value.toUpperCase().trim();
         const interval = document.getElementById('interval').value;
         const days = document.getElementById('days').value;
         const refresh = document.getElementById('refresh').value;
@@ -96,7 +95,6 @@
         window.open(buildUrl(), '_blank');
     }
 
-    // 绑定事件
     document.querySelectorAll('select, input').forEach(el => {
         el.addEventListener('change', updatePreview);
         el.addEventListener('input', updatePreview);
