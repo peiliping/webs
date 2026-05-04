@@ -79,7 +79,7 @@
                         {type: 'week', count: 1, text: '1w'},
                         {type: 'week', count: 4, text: '4w'}
                     ],
-                    selected: dataContext.initPeriod
+                    selected: dataContext.interval.period
                 },
                 yAxis: [
                     {                     
@@ -197,8 +197,8 @@
             return [source[length - 1][0], upper, lower];
         }
         function calLinearLines(source, target, getValFunc, precisionN){
-            for(let i = dataContext.linearNum - 1; i < source.length; i++){
-                const subArray = source.slice(i + 1 - dataContext.linearNum, i + 1);
+            for(let i = dataContext.interval.linearNum - 1; i < source.length; i++){
+                const subArray = source.slice(i + 1 - dataContext.interval.linearNum, i + 1);
                 target.push(linear(subArray, getValFunc, precisionN));
             }
         }
