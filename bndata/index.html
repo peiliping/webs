@@ -25,10 +25,8 @@
     </style>
 </head>
 <body>
-
 <div class="card">
     <h2>📈 币安图表生成器</h2>
-    
     <div class="form-group">
         <label>交易对</label>
         <input type="text" id="symbol" list="symbol-list" value="BTCUSDT">
@@ -42,7 +40,6 @@
             <option value="TMP">
         </datalist>
     </div>
-
     <div class="form-group">
         <label>时间间隔</label>
         <select id="interval" onchange="handleIntervalChange()">
@@ -52,47 +49,32 @@
             <option value="4h">4 h</option>
         </select>
     </div>
-
     <div class="form-group">
         <label>展示天数</label>
         <input type="number" id="days" value="3">
     </div>
-
     <div class="form-group">
         <label>刷新间隔</label>
         <select id="refresh">
-            <option value="0">0</option>
+            <option value="0">不刷新</option>
             <option value="60" selected>1 min</option>
             <option value="300">5 min</option>
         </select>
     </div>
-
     <div class="checkbox-group">
         <input type="checkbox" id="useLocal" onchange="updatePreview()">
-        <label for="useLocal">使用本地模式 (u-chart-local.html)</label>
+        <label for="useLocal">使用本地模式(P:3000)</label>
     </div>
-
     <button class="btn" onclick="goToUrl()">打开图表页面</button>
-    
     <div class="preview-url" id="preview"></div>
 </div>
-
 <script>
-    const defaultDays = {
-        "5m": 3,
-        "15m": 5,
-        "1h": 8,
-        "4h": 29
-    };
-
+    const defaultDays = {"5m":3,"15m":5,"1h":8,"4h":29};
     function handleIntervalChange() {
         const interval = document.getElementById('interval').value;
-        if (defaultDays[interval]) {
-            document.getElementById('days').value = defaultDays[interval];
-        }
+        document.getElementById('days').value = defaultDays[interval];
         updatePreview();
     }
-
     function buildUrl() {
         const isLocal = document.getElementById('useLocal').checked;
         const baseUrl = isLocal ? "u-chart-local.html" : "u-chart.html";
@@ -100,25 +82,15 @@
         const interval = document.getElementById('interval').value;
         const days = document.getElementById('days').value;
         const refresh = document.getElementById('refresh').value;
-        
         return `${baseUrl}?symbol=${symbol}&interval=${interval}&days=${days}&refresh=${refresh}`;
     }
-
-    function updatePreview() {
-        document.getElementById('preview').innerText = buildUrl();
-    }
-
-    function goToUrl() {
-        window.open(buildUrl(), '_blank');
-    }
-
+    function updatePreview() {  document.getElementById('preview').innerText = buildUrl();  }
+    function goToUrl() {  window.open(buildUrl(), '_blank');  }
     document.querySelectorAll('select, input').forEach(el => {
         el.addEventListener('change', updatePreview);
         el.addEventListener('input', updatePreview);
     });
-
     updatePreview();
 </script>
-
 </body>
 </html>
