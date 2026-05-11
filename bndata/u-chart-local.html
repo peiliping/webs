@@ -47,7 +47,6 @@
             volumes: [],
             opensU: [],
             opensULNR: [],
-            opensUPrecision: parseInt(getUrlParam('opensUPrecision', 2)),
             ratios: [],
             longshorts: [],
             interval: INTERVALS[getUrlParam('interval', '5m')],
@@ -253,7 +252,7 @@
                 calLinearLines(dataContext.prices, dataContext.pricesLNR,
                                 getAvgPrice, dataContext.pricesPrecision);
                 calLinearLines(dataContext.opensU, dataContext.opensULNR,
-                                item => item[1], dataContext.opensUPrecision);
+                                item => item[1], 2);
                 createChart();
             });
     </script>
